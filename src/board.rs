@@ -6,21 +6,26 @@ use arduino_hal::{
 pub type Serial =
     arduino_hal::Usart<arduino_hal::pac::USART0, Pin<mode::Input, D0>, Pin<mode::Output, D1>>;
 
+pub type OutputPin<ID> = Pin<mode::Output, ID>;
+
+pub type FloatingInputPin<ID> = Pin<mode::Input<mode::Floating>, ID>;
+pub type AnalogInputPin<ID> = Pin<mode::Analog, ID>;
+
 pub struct Board {
     pub serial: Serial,
-    pub key_button: Pin<mode::Input<mode::Floating>, D2>,
-    pub motor_a_pwm: Pin<mode::Output, D5>,
-    pub motor_b_pwm: Pin<mode::Output, D6>,
-    pub motor_b_direction: Pin<mode::Output, D7>,
-    pub motor_a_direction: Pin<mode::Output, D8>,
-    pub ir_receiver: Pin<mode::Input<mode::Floating>, D9>,
-    pub servo_pan: Pin<mode::Output, D10>,
-    pub servo_tilt: Pin<mode::Output, D11>,
-    pub ultrasonic_echo: Pin<mode::Input<mode::Floating>, D12>,
-    pub ultrasonic_trigger: Pin<mode::Output, D13>,
-    pub line_tracking_right: Pin<mode::Analog, A0>,
-    pub line_tracking_middle: Pin<mode::Analog, A1>,
-    pub line_tracking_left: Pin<mode::Analog, A2>,
+    pub key_button: FloatingInputPin<D2>,
+    pub motor_a_pwm: OutputPin<D5>,
+    pub motor_b_pwm: OutputPin<D6>,
+    pub motor_b_direction: OutputPin<D7>,
+    pub motor_a_direction: OutputPin<D8>,
+    pub ir_receiver: FloatingInputPin<D9>,
+    pub servo_pan: OutputPin<D10>,
+    pub servo_tilt: OutputPin<D11>,
+    pub ultrasonic_echo: FloatingInputPin<D12>,
+    pub ultrasonic_trigger: OutputPin<D13>,
+    pub line_tracking_right: AnalogInputPin<A0>,
+    pub line_tracking_middle: AnalogInputPin<A1>,
+    pub line_tracking_left: AnalogInputPin<A2>,
 }
 
 impl Board {

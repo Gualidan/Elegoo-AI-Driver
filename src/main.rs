@@ -5,7 +5,12 @@ use crate::ultrasonic::echo::echo_time;
 use panic_halt as _;
 use ufmt::uwriteln;
 
+pub mod board;
 pub mod ultrasonic;
+
+/* Builds with: cargo build --target avr-none -C target-cpu=atmega328p -Z build-std=core
+ * --target avr-none -C target-cpu= specifies AVR instruction encoding and correct linker
+ */
 
 #[arduino_hal::entry]
 fn main() -> ! {

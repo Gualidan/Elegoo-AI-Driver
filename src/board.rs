@@ -3,9 +3,11 @@ use arduino_hal::{
     port::{A0, A1, A2, D0, D1, D2, D5, D6, D7, D8, D9, D10, D11, D12, D13, Pin, mode},
 };
 
+pub type Serial =
+    arduino_hal::Usart<arduino_hal::pac::USART0, Pin<mode::Input, D0>, Pin<mode::Output, D1>>;
+
 pub struct Board {
-    pub serial_rx: Pin<mode::Input<mode::Floating>, D0>,
-    pub serial_tx: Pin<mode::Output, D1>,
+    pub serial: Serial,
     pub key_button: Pin<mode::Input<mode::Floating>, D2>,
     pub motor_a_pwm: Pin<mode::Output, D5>,
     pub motor_b_pwm: Pin<mode::Output, D6>,
@@ -22,10 +24,16 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(pins: Pins, adc: &mut Adc) -> Self {
+    pub fn new(usart: arduino_hal::pac::USART0, pins: Pins, adc: &mut Adc) -> Self {
+        let serial = arduino_hal::Usart::new(
+            usart,
+            pins.d0.into_floating_input(),
+            pins.d1.into_output(),
+            arduino_hal::hal::usart::BaudrateArduinoExt::into_baudrate(57600),
+        );
+
         Self {
-            serial_rx: pins.d0.into_floating_input(),
-            serial_tx: pins.d1.into_output(),
+            serial,
             key_button: pins.d2.into_floating_input(),
             motor_a_pwm: pins.d5.into_output(),
             motor_b_pwm: pins.d6.into_output(),

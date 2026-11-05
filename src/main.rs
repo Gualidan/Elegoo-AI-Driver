@@ -1,12 +1,12 @@
 #![no_std]
 #![no_main]
 
-use crate::{board::Board, ultrasonic::echo::echo_time};
+use crate::{board::Board, log::log::Logger, ultrasonic::echo::echo_time};
 use arduino_hal::{Adc, adc::AdcSettings};
 use panic_halt as _;
-use ufmt::uwriteln;
 
 pub mod board;
+pub mod log;
 pub mod ultrasonic;
 
 /* Builds with: cargo build --target avr-none -C target-cpu=atmega328p -Z build-std=core
@@ -22,6 +22,10 @@ fn main() -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut adc = Adc::new(dp.ADC, AdcSettings::default());
     let mut board = Board::new(dp.USART0, pins, &mut adc);
+    let mut logger = Logger::new(&mut board.serial);
+    let firmware_version = env!("CARGO_PKG_VERSION");
+
+    logger.log_version(firmware_version);
 
     loop {
         board.ultrasonic_trigger.set_low();
@@ -35,14 +39,12 @@ fn main() -> ! {
 
         if let Some(echo) = echo {
             let distance_cm = echo / 116;
-            uwriteln!(&mut board.serial, "Found object at {} cm", distance_cm);
+            logger.log_distance(distance_cm);
         } else {
-            uwriteln!(
-                &mut board.serial,
-                "Nothing found, perhaps target is too far away"
-            );
+            logger.log("Nothing found, perhaps target is too far away");
         }
 
         arduino_hal::delay_ms(100);
+        logger.ticks();
     }
 }
